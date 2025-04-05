@@ -1,3 +1,4 @@
+// src/app/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -8,27 +9,6 @@ export default function Home() {
   const [leituraAtual, setLeituraAtual] = useState("");
   const [tarifa, setTarifa] = useState("0.89");
   const [whatsLink, setWhatsLink] = useState("");
-
-  const calcular = () => {
-    const anterior = parseFloat(leituraAnterior);
-    const atual = parseFloat(leituraAtual);
-    const taxa = parseFloat(tarifa);
-
-    if (isNaN(anterior) || isNaN(atual) || isNaN(taxa)) return;
-
-    const consumo = atual - anterior;
-    const valor = consumo * taxa;
-
-    const mensagem = `📊 *Leitura de Energia - Acomodação ${acomodacao}*
-🔢 Leitura Anterior: ${anterior} kWh
-🔢 Leitura Atual: ${atual} kWh
-⚡ Consumo: ${consumo.toFixed(2)} kWh
-💸 Valor: R$ ${valor.toFixed(2)}
-💡 Tarifa usada: R$ ${taxa.toFixed(2)} por kWh`;
-
-    const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-    setWhatsLink(link);
-  };
 
   const salvarLeitura = async () => {
     const anterior = parseFloat(leituraAnterior);
@@ -85,7 +65,7 @@ export default function Home() {
 💸 Valor: R$ ${ultimo.valor}
 💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
 
-      const telefone = ultimo.telefone || ""; // opcional
+      const telefone = ultimo.telefone || "";
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
     } catch (error) {

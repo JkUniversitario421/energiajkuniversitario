@@ -28,8 +28,7 @@ export default function Home() {
     };
 
     try {
-      const res = await fetch("https://sheetdb.io/api/v1/5m0rz0rmv8jmg?sheet=Leituras", {
-
+      const res = await fetch("https://sheetdb.io/api/v1/5m0rz0rmv8jmg", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -48,9 +47,14 @@ export default function Home() {
     }
   };
 
+  const limparTelefone = (numero: string) => {
+    const limpo = numero.replace(/\D/g, "");
+    const valido = limpo.match(/^\d{10,13}$/);
+    return valido ? limpo : "";
+  };
+
   const gerarLinkWhatsComUltimoRegistro = async () => {
     try {
-      // Buscar leitura mais recente do quarto selecionado
       const resLeitura = await fetch(`https://sheetdb.io/api/v1/5m0rz0rmv8jmg/search?acomodacao=${acomodacao}`);
       const leituras = await resLeitura.json();
 
@@ -61,7 +65,6 @@ export default function Home() {
 
       const ultimo = leituras[leituras.length - 1];
 
-      // Buscar telefone correspondente na aba Telefones
       const resTelefone = await fetch(`https://sheetdb.io/api/v1/5m0rz0rmv8jmg/search?sheet=Telefones&acomodacao=${acomodacao}`);
       const telefones = await resTelefone.json();
 
@@ -70,9 +73,15 @@ export default function Home() {
         return;
       }
 
-      const telefone = telefones[0].telefone;
+      const telefoneBruto = telefones[0].telefone;
+      const telefone = limparTelefone(telefoneBruto);
 
-      const mensagem = `📊 *Leitura de Energia - Acomodação ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
+      if (!telefone) {
+        alert("Telefone inválido encontrado na planilha.");
+        return;
+      }
+
+      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
 
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
@@ -90,7 +99,7 @@ export default function Home() {
 
       <div className="grid gap-4 w-full max-w-md">
         <label className="flex flex-col">
-          Acomodação:
+          Acomodacão:
           <select
             className="border p-2 rounded mt-1"
             value={acomodacao}
@@ -145,7 +154,7 @@ export default function Home() {
           onClick={gerarLinkWhatsComUltimoRegistro}
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
         >
-          🖊️ WhatsApp com Última Leitura
+          📋 WhatsApp com Última Leitura
         </button>
 
         {whatsLink && (

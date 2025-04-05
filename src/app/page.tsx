@@ -9,6 +9,14 @@ export default function Home() {
   const [leituraAtual, setLeituraAtual] = useState("");
   const [tarifa, setTarifa] = useState("0.89");
   const [whatsLink, setWhatsLink] = useState("");
+  const [darkMode, setDarkMode] = useState(true);
+
+  const limparCampos = () => {
+    setLeituraAnterior("");
+    setLeituraAtual("");
+    setTarifa("0.89");
+    setWhatsLink("");
+  };
 
   const salvarLeitura = async () => {
     const anterior = parseFloat(leituraAnterior);
@@ -96,22 +104,34 @@ export default function Home() {
     }
   };
 
+  const bgColor = darkMode ? "bg-black" : "bg-white";
+  const textColor = darkMode ? "text-white" : "text-black";
+  const inputStyle = `${bgColor} ${textColor} border p-2 rounded mt-1`;
+
   return (
-    <main className="min-h-screen bg-black text-white p-4 flex flex-col items-center">
-      <h1 className="text-2xl font-bold text-white mb-4">
-        Energia JK Universitário
-      </h1>
+    <main className={`min-h-screen ${bgColor} ${textColor} p-4 flex flex-col items-center`}>
+      <button
+        onClick={() => setDarkMode(!darkMode)}
+        className="mb-4 px-4 py-2 rounded bg-gray-700 text-white hover:bg-gray-600"
+      >
+        {darkMode ? "☀️ Modo Claro" : "🌙 Modo Escuro"}
+      </button>
+
+      <h1 className="text-2xl font-bold mb-4">Energia JK Universitário</h1>
 
       <div className="grid gap-4 w-full max-w-md">
         <label className="flex flex-col">
           Acomodacão:
           <select
-            className="border p-2 rounded mt-1 bg-black text-white"
+            className={inputStyle}
             value={acomodacao}
-            onChange={(e) => setAcomodacao(e.target.value)}
+            onChange={(e) => {
+              setAcomodacao(e.target.value);
+              limparCampos();
+            }}
           >
             {[...Array(7)].map((_, i) => (
-              <option key={i} value={i + 1} className="bg-black text-white">
+              <option key={i} value={i + 1} className={inputStyle}>
                 Quarto {i + 1}
               </option>
             ))}
@@ -122,7 +142,7 @@ export default function Home() {
           Leitura Anterior (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1 bg-black text-white"
+            className={inputStyle}
             value={leituraAnterior}
             onChange={(e) => setLeituraAnterior(e.target.value)}
           />
@@ -132,7 +152,7 @@ export default function Home() {
           Leitura Atual (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1 bg-black text-white"
+            className={inputStyle}
             value={leituraAtual}
             onChange={(e) => setLeituraAtual(e.target.value)}
           />
@@ -142,7 +162,7 @@ export default function Home() {
           Tarifa por kWh (R$):
           <input
             type="number"
-            className="border p-2 rounded mt-1 bg-black text-white"
+            className={inputStyle}
             value={tarifa}
             onChange={(e) => setTarifa(e.target.value)}
           />

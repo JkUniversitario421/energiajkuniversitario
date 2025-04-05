@@ -28,7 +28,8 @@ export default function Home() {
     };
 
     try {
-      const res = await fetch("https://sheetdb.io/api/v1/5m0rz0rmv8jmg", {
+      const res = await fetch("https://sheetdb.io/api/v1/5m0rz0rmv8jmg?sheet=Leituras", {
+
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,28 +50,35 @@ export default function Home() {
 
   const gerarLinkWhatsComUltimoRegistro = async () => {
     try {
-      const res = await fetch("https://sheetdb.io/api/v1/5m0rz0rmv8jmg?sort_by=data&sort_order=desc");
-      const data = await res.json();
+      // Buscar leitura mais recente do quarto selecionado
+      const resLeitura = await fetch(`https://sheetdb.io/api/v1/5m0rz0rmv8jmg/search?acomodacao=${acomodacao}`);
+      const leituras = await resLeitura.json();
 
-      if (data.length === 0) {
-        alert("Nenhum dado encontrado na planilha.");
+      if (!leituras || leituras.length === 0) {
+        alert("Nenhuma leitura encontrada para este quarto.");
         return;
       }
 
-      const ultimo = data[0];
-      const mensagem = `📊 *Leitura de Energia - Acomodação ${ultimo.acomodacao}*
-🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh
-🔢 Leitura Atual: ${ultimo.leitura_atual} kWh
-⚡ Consumo: ${ultimo.consumo} kWh
-💸 Valor: R$ ${ultimo.valor}
-💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
+      const ultimo = leituras[leituras.length - 1];
 
-      const telefone = ultimo.telefone || "";
+      // Buscar telefone correspondente na aba Telefones
+      const resTelefone = await fetch(`https://sheetdb.io/api/v1/5m0rz0rmv8jmg/search?sheet=Telefones&acomodacao=${acomodacao}`);
+      const telefones = await resTelefone.json();
+
+      if (!telefones || telefones.length === 0) {
+        alert("Telefone não encontrado para este quarto.");
+        return;
+      }
+
+      const telefone = telefones[0].telefone;
+
+      const mensagem = `📊 *Leitura de Energia - Acomodação ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
+
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
     } catch (error) {
       console.error("Erro ao buscar dados:", error);
-      alert("Erro ao buscar última leitura.");
+      alert("Erro ao buscar última leitura ou telefone.");
     }
   };
 

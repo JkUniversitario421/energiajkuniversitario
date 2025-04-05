@@ -106,12 +106,12 @@ export default function Home() {
         <label className="flex flex-col">
           Acomodacão:
           <select
-            className="border p-2 rounded mt-1 text-black"
+            className="border p-2 rounded mt-1 bg-black text-white"
             value={acomodacao}
             onChange={(e) => setAcomodacao(e.target.value)}
           >
             {[...Array(7)].map((_, i) => (
-              <option key={i} value={i + 1}>
+              <option key={i} value={i + 1} className="bg-black text-white">
                 Quarto {i + 1}
               </option>
             ))}
@@ -122,7 +122,7 @@ export default function Home() {
           Leitura Anterior (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1 text-black"
+            className="border p-2 rounded mt-1 bg-black text-white"
             value={leituraAnterior}
             onChange={(e) => setLeituraAnterior(e.target.value)}
           />
@@ -132,7 +132,7 @@ export default function Home() {
           Leitura Atual (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1 text-black"
+            className="border p-2 rounded mt-1 bg-black text-white"
             value={leituraAtual}
             onChange={(e) => setLeituraAtual(e.target.value)}
           />
@@ -142,7 +142,7 @@ export default function Home() {
           Tarifa por kWh (R$):
           <input
             type="number"
-            className="border p-2 rounded mt-1 text-black"
+            className="border p-2 rounded mt-1 bg-black text-white"
             value={tarifa}
             onChange={(e) => setTarifa(e.target.value)}
           />

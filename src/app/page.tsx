@@ -81,7 +81,12 @@ export default function Home() {
         return;
       }
 
-      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
+      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*
+🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh
+🔢 Leitura Atual: ${ultimo.leitura_atual} kWh
+⚡ Consumo: ${ultimo.consumo} kWh
+💸 Valor: R$ ${ultimo.valor}
+💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
 
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
@@ -92,8 +97,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4 flex flex-col items-center">
-      <h1 className="text-2xl font-bold text-blue-800 mb-4">
+    <main className="min-h-screen bg-black text-white p-4 flex flex-col items-center">
+      <h1 className="text-2xl font-bold text-white mb-4">
         Energia JK Universitário
       </h1>
 
@@ -101,7 +106,7 @@ export default function Home() {
         <label className="flex flex-col">
           Acomodacão:
           <select
-            className="border p-2 rounded mt-1"
+            className="border p-2 rounded mt-1 text-black"
             value={acomodacao}
             onChange={(e) => setAcomodacao(e.target.value)}
           >
@@ -117,7 +122,7 @@ export default function Home() {
           Leitura Anterior (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1"
+            className="border p-2 rounded mt-1 text-black"
             value={leituraAnterior}
             onChange={(e) => setLeituraAnterior(e.target.value)}
           />
@@ -127,7 +132,7 @@ export default function Home() {
           Leitura Atual (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1"
+            className="border p-2 rounded mt-1 text-black"
             value={leituraAtual}
             onChange={(e) => setLeituraAtual(e.target.value)}
           />
@@ -137,7 +142,7 @@ export default function Home() {
           Tarifa por kWh (R$):
           <input
             type="number"
-            className="border p-2 rounded mt-1"
+            className="border p-2 rounded mt-1 text-black"
             value={tarifa}
             onChange={(e) => setTarifa(e.target.value)}
           />
@@ -161,7 +166,7 @@ export default function Home() {
           <a
             href={whatsLink}
             target="_blank"
-            className="text-green-600 font-medium underline text-center"
+            className="text-green-400 font-medium underline text-center"
           >
             📲 Enviar via WhatsApp
           </a>
@@ -169,7 +174,7 @@ export default function Home() {
 
         <a
           href="/historico"
-          className="text-blue-600 underline text-center mt-4"
+          className="text-blue-400 underline text-center mt-4"
         >
           📊 Ver Histórico de Leituras
         </a>

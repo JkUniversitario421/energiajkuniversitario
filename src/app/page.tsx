@@ -10,6 +10,7 @@ export default function Home() {
   const [tarifa, setTarifa] = useState("");
   const [percentual, setPercentual] = useState("");
   const [taxaIluminacao, setTaxaIluminacao] = useState("");
+  const [valorCalculado, setValorCalculado] = useState("");
   const [whatsLink, setWhatsLink] = useState("");
   const [darkMode, setDarkMode] = useState(true);
 
@@ -19,6 +20,7 @@ export default function Home() {
     setTarifa("");
     setPercentual("");
     setTaxaIluminacao("");
+    setValorCalculado("");
     setWhatsLink("");
   };
 
@@ -33,13 +35,14 @@ export default function Home() {
     const adicional = valorBase * (perc / 100);
     const valorFinal = valorBase + adicional + taxa;
 
+    setValorCalculado(valorFinal.toFixed(2));
+
     const payload = {
       acomodacao,
       leitura_anterior: anterior,
       leitura_atual: atual,
       consumo: consumo.toFixed(2),
       valor: valorFinal.toFixed(2),
-      tarifa: tarifaBase.toFixed(2),
       percentual: perc.toFixed(2),
       iluminacao: taxa.toFixed(2),
       data: new Date().toLocaleString("pt-BR"),
@@ -99,7 +102,7 @@ export default function Home() {
         return;
       }
 
-      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n💡 Tarifa base: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh\n📈 % Adicional: ${ultimo.percentual}%\n💡 Iluminação: R$ ${ultimo.iluminacao}`;
+      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n📈 % Adicional: ${ultimo.percentual}%\n💡 Iluminação: R$ ${ultimo.iluminacao}`;
 
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
@@ -192,6 +195,12 @@ export default function Home() {
             onChange={(e) => setTaxaIluminacao(e.target.value)}
           />
         </label>
+
+        {valorCalculado && (
+          <div className="text-green-400 font-bold text-lg text-center">
+            💰 Valor Total: R$ {valorCalculado}
+          </div>
+        )}
 
         <button
           onClick={salvarLeitura}

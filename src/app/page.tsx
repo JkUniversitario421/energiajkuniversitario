@@ -7,31 +7,35 @@ export default function Home() {
   const [acomodacao, setAcomodacao] = useState("1");
   const [leituraAnterior, setLeituraAnterior] = useState("");
   const [leituraAtual, setLeituraAtual] = useState("");
-  const [tarifa, setTarifa] = useState("0.89");
+  const [percentual, setPercentual] = useState("");
+  const [taxaIluminacao, setTaxaIluminacao] = useState("");
   const [whatsLink, setWhatsLink] = useState("");
   const [darkMode, setDarkMode] = useState(true);
 
   const limparCampos = () => {
     setLeituraAnterior("");
     setLeituraAtual("");
-    setTarifa("0.89");
+    setPercentual("");
+    setTaxaIluminacao("");
     setWhatsLink("");
   };
 
   const salvarLeitura = async () => {
     const anterior = parseFloat(leituraAnterior);
     const atual = parseFloat(leituraAtual);
-    const taxa = parseFloat(tarifa);
     const consumo = atual - anterior;
-    const valor = consumo * taxa;
+    const perc = parseFloat(percentual);
+    const taxa = parseFloat(taxaIluminacao);
+    const valorBase = consumo * 0.89;
+    const valorFinal = valorBase + (valorBase * perc / 100) + taxa;
 
     const payload = {
       acomodacao,
       leitura_anterior: anterior,
       leitura_atual: atual,
       consumo: consumo.toFixed(2),
-      valor: valor.toFixed(2),
-      tarifa: taxa,
+      valor: valorFinal.toFixed(2),
+      tarifa: 0.89,
       data: new Date().toLocaleString("pt-BR"),
     };
 
@@ -89,12 +93,7 @@ export default function Home() {
         return;
       }
 
-      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*
-🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh
-🔢 Leitura Atual: ${ultimo.leitura_atual} kWh
-⚡ Consumo: ${ultimo.consumo} kWh
-💸 Valor: R$ ${ultimo.valor}
-💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
+      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh`;
 
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
@@ -159,12 +158,22 @@ export default function Home() {
         </label>
 
         <label className="flex flex-col">
-          Tarifa por kWh (R$):
+          % sobre valor base:
           <input
             type="number"
             className={inputStyle}
-            value={tarifa}
-            onChange={(e) => setTarifa(e.target.value)}
+            value={percentual}
+            onChange={(e) => setPercentual(e.target.value)}
+          />
+        </label>
+
+        <label className="flex flex-col">
+          Taxa de Iluminação Pública (R$):
+          <input
+            type="number"
+            className={inputStyle}
+            value={taxaIluminacao}
+            onChange={(e) => setTaxaIluminacao(e.target.value)}
           />
         </label>
 

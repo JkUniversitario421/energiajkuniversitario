@@ -1,3 +1,6 @@
+'use client';  // Adicione esta linha no topo
+
+
 import { useState, useEffect } from "react";
 
 export default function Home() {

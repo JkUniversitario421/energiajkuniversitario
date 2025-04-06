@@ -1,36 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import useServiceWorker from './service-worker'; // Caminho correto
 
 export default function Home() {
   const [acomodacao, setAcomodacao] = useState("1");
   const [leituraAnterior, setLeituraAnterior] = useState("");
   const [leituraAtual, setLeituraAtual] = useState("");
-  const [tarifa, setTarifa] = useState("0.89");
-  const [percentual, setPercentual] = useState(10); // Exemplo de percentual (pode ser dinâmico)
+  const [taxaIluminacao, setTaxaIluminacao] = useState("");
+  const [valorCalculado, setValorCalculado] = useState("");
   const [whatsLink, setWhatsLink] = useState("");
+  const [darkMode, setDarkMode] = useState(true);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [installButtonVisible, setInstallButtonVisible] = useState(false);
+
+  useEffect(() => {
+    // Adiciona o evento 'beforeinstallprompt' para capturar o prompt de instalação
+    const handleBeforeInstallPrompt = (e: Event) => {
+      // Previne o prompt de instalação padrão
+      e.preventDefault();
+      // Armazena o evento para dispará-lo quando o usuário clicar no botão
+      setDeferredPrompt(e);
+      setInstallButtonVisible(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const limparCampos = () => {
+    setLeituraAnterior("");
+    setLeituraAtual("");
+    setTaxaIluminacao("");
+    setValorCalculado("");
+    setWhatsLink("");
+  };
 
   const salvarLeitura = async () => {
     const anterior = parseFloat(leituraAnterior);
     const atual = parseFloat(leituraAtual);
-    const taxa = parseFloat(tarifa);
     const consumo = atual - anterior;
+    const adicional = consumo * 0.1; // 10%
+    const taxa = parseFloat(taxaIluminacao);
+    const valorFinal = consumo + adicional + taxa;
 
-    // Aplicando o percentual sobre o consumo
-    const percentualAjustado = consumo * (percentual / 100);
-    const consumoComAjuste = consumo + percentualAjustado;
-
-    // Calculando o valor
-    const valor = consumoComAjuste * taxa;
+    setValorCalculado(valorFinal.toFixed(2));
 
     const payload = {
       acomodacao,
       leitura_anterior: anterior,
       leitura_atual: atual,
-      consumo: consumoComAjuste.toFixed(2),
-      valor: valor.toFixed(2),
-      tarifa: taxa,
-      percentual: percentualAjustado.toFixed(2), // Adicionando o percentual ajustado ao payload
+      consumo: consumo.toFixed(2),
+      valor: valorFinal.toFixed(2),
+      percentual: "10.00",
+      iluminacao: taxa.toFixed(2),
       data: new Date().toLocaleString("pt-BR"),
     };
 
@@ -54,50 +81,94 @@ export default function Home() {
     }
   };
 
+  const limparTelefone = (numero: string) => {
+    const limpo = numero.replace(/\D/g, "");
+    const valido = limpo.match(/^\d{10,13}$/);
+    return valido ? limpo : "";
+  };
+
   const gerarLinkWhatsComUltimoRegistro = async () => {
     try {
-      const res = await fetch("https://sheetdb.io/api/v1/5m0rz0rmv8jmg?sort_by=data&sort_order=desc");
-      const data = await res.json();
+      const resLeitura = await fetch(`https://sheetdb.io/api/v1/5m0rz0rmv8jmg/search?acomodacao=${acomodacao}`);
+      const leituras = await resLeitura.json();
 
-      if (data.length === 0) {
-        alert("Nenhum dado encontrado na planilha.");
+      if (!leituras || leituras.length === 0) {
+        alert("Nenhuma leitura encontrada para este quarto.");
         return;
       }
 
-      const ultimo = data[0];
-      const mensagem = `📊 *Leitura de Energia - Acomodação ${ultimo.acomodacao}*
-🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh
-🔢 Leitura Atual: ${ultimo.leitura_atual} kWh
-⚡ Consumo: ${ultimo.consumo} kWh
-💸 Valor: R$ ${ultimo.valor}
-💡 Tarifa usada: R$ ${parseFloat(ultimo.tarifa).toFixed(2)} por kWh
-📊 Percentual Adicional: ${ultimo.percentual} kWh`;
+      const ultimo = leituras[leituras.length - 1];
 
-      const telefone = ultimo.telefone || "";
+      const resTelefone = await fetch(`https://sheetdb.io/api/v1/5m0rz0rmv8jmg/search?sheet=Telefones&acomodacao=${acomodacao}`);
+      const telefones = await resTelefone.json();
+
+      if (!telefones || telefones.length === 0) {
+        alert("Telefone não encontrado para este quarto.");
+        return;
+      }
+
+      const telefoneBruto = telefones[0].telefone;
+      const telefone = limparTelefone(telefoneBruto);
+
+      if (!telefone) {
+        alert("Telefone inválido encontrado na planilha.");
+        return;
+      }
+
+      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n📈 % Adicional: ${ultimo.percentual}%\n💡 Iluminação: R$ ${ultimo.iluminacao}`;
+
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
     } catch (error) {
       console.error("Erro ao buscar dados:", error);
-      alert("Erro ao buscar última leitura.");
+      alert("Erro ao buscar última leitura ou telefone.");
+    }
+  };
+
+  const bgColor = darkMode ? "bg-black" : "bg-white";
+  const textColor = darkMode ? "text-white" : "text-black";
+  const inputStyle = `${bgColor} ${textColor} border p-2 rounded mt-1`;
+
+  const handleInstall = () => {
+    if (deferredPrompt) {
+      // Exibe o prompt de instalação
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('Usuário aceitou o prompt de instalação');
+        } else {
+          console.log('Usuário rejeitou o prompt de instalação');
+        }
+        setInstallButtonVisible(false);
+        setDeferredPrompt(null);
+      });
     }
   };
 
   return (
-    <main className="min-h-screen bg-black text-white p-4 flex flex-col items-center">
-      <h1 className="text-2xl font-bold text-blue-800 mb-4">
-        Energia JK Universitário
-      </h1>
+    <main className={`min-h-screen ${bgColor} ${textColor} p-4 flex flex-col items-center`}>
+      <button
+        onClick={() => setDarkMode(!darkMode)}
+        className="mb-4 px-4 py-2 rounded bg-gray-700 text-white hover:bg-gray-600"
+      >
+        {darkMode ? "☀️ Modo Claro" : "🌙 Modo Escuro"}
+      </button>
+
+      <h1 className="text-2xl font-bold mb-4">Energia JK Universitário</h1>
 
       <div className="grid gap-4 w-full max-w-md">
         <label className="flex flex-col">
-          Acomodação:
+          Acomodacão:
           <select
-            className="border p-2 rounded mt-1"
+            className={inputStyle}
             value={acomodacao}
-            onChange={(e) => setAcomodacao(e.target.value)}
+            onChange={(e) => {
+              setAcomodacao(e.target.value);
+              limparCampos();
+            }}
           >
             {[...Array(7)].map((_, i) => (
-              <option key={i} value={i + 1}>
+              <option key={i} value={i + 1} className={inputStyle}>
                 Quarto {i + 1}
               </option>
             ))}
@@ -108,7 +179,7 @@ export default function Home() {
           Leitura Anterior (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1"
+            className={inputStyle}
             value={leituraAnterior}
             onChange={(e) => setLeituraAnterior(e.target.value)}
           />
@@ -118,31 +189,27 @@ export default function Home() {
           Leitura Atual (kWh):
           <input
             type="number"
-            className="border p-2 rounded mt-1"
+            className={inputStyle}
             value={leituraAtual}
             onChange={(e) => setLeituraAtual(e.target.value)}
           />
         </label>
 
         <label className="flex flex-col">
-          Percentual sobre o valor calculado (%):
+          Taxa de Iluminação Pública (R$):
           <input
             type="number"
-            className="border p-2 rounded mt-1"
-            value={percentual}
-            onChange={(e) => setPercentual(parseFloat(e.target.value))}
+            className={inputStyle}
+            value={taxaIluminacao}
+            onChange={(e) => setTaxaIluminacao(e.target.value)}
           />
         </label>
 
-        <label className="flex flex-col">
-          Tarifa por kWh (R$):
-          <input
-            type="number"
-            className="border p-2 rounded mt-1"
-            value={tarifa}
-            onChange={(e) => setTarifa(e.target.value)}
-          />
-        </label>
+        {valorCalculado && (
+          <div className="text-green-400 font-bold text-lg text-center">
+            💰 Valor Total: R$ {valorCalculado}
+          </div>
+        )}
 
         <button
           onClick={salvarLeitura}
@@ -155,14 +222,14 @@ export default function Home() {
           onClick={gerarLinkWhatsComUltimoRegistro}
           className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded"
         >
-          🖊️ WhatsApp com Última Leitura
+          📋 WhatsApp com Última Leitura
         </button>
 
         {whatsLink && (
           <a
             href={whatsLink}
             target="_blank"
-            className="text-green-600 font-medium underline text-center"
+            className="text-green-400 font-medium underline text-center"
           >
             📲 Enviar via WhatsApp
           </a>
@@ -170,10 +237,23 @@ export default function Home() {
 
         <a
           href="/historico"
-          className="text-blue-600 underline text-center mt-4"
+          className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white transition-colors px-4 py-2 rounded text-center mt-4"
         >
           📊 Ver Histórico de Leituras
         </a>
+
+        {/* Opção para instalar o app */}
+        {installButtonVisible && (
+          <div className="mt-6">
+            <p className="text-center">Adicionar ao seu dispositivo:</p>
+            <button
+              onClick={handleInstall}
+              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+            >
+              Instalar
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );

@@ -1,0 +1,22 @@
+{
+    "short_name": "Energia JK",
+    "name": "Energia JK Universitário",
+    "description": "Aplicativo de registro de leituras de energia para acomodações do Energia JK",
+    "icons": [
+      {
+        "src": "/icons/icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "/icons/icon-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ],
+    "start_url": "/",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "theme_color": "#000000"
+  }
+  

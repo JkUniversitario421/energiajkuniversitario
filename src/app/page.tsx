@@ -12,28 +12,25 @@ export default function Home() {
   const [valorCalculado, setValorCalculado] = useState("");
   const [whatsLink, setWhatsLink] = useState("");
   const [darkMode, setDarkMode] = useState(true);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [installButtonVisible, setInstallButtonVisible] = useState(false);
 
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showInstallButton, setShowInstallButton] = useState(false);
-
-  // Captura o evento para instalação do PWA
   useEffect(() => {
-    const handler = (e: any) => {
+    const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setShowInstallButton(true);
+      setInstallButtonVisible(true);
     };
-
     window.addEventListener("beforeinstallprompt", handler);
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  const instalarApp = () => {
+  const handleInstall = () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(() => {
+        setInstallButtonVisible(false);
         setDeferredPrompt(null);
-        setShowInstallButton(false);
       });
     }
   };
@@ -50,8 +47,9 @@ export default function Home() {
   const salvarLeitura = async () => {
     const anterior = parseFloat(leituraAnterior);
     const atual = parseFloat(leituraAtual);
+    const taxaPerc = parseFloat(percentual) / 100;
     const consumo = atual - anterior;
-    const adicional = consumo * 0.1;
+    const adicional = consumo * taxaPerc;
     const taxa = parseFloat(taxaIluminacao);
     const valorFinal = consumo + adicional + taxa;
 
@@ -63,7 +61,7 @@ export default function Home() {
       leitura_atual: atual,
       consumo: consumo.toFixed(2),
       valor: valorFinal.toFixed(2),
-      percentual: "10.00",
+      percentual: percentual,
       iluminacao: taxa.toFixed(2),
       data: new Date().toLocaleString("pt-BR"),
     };
@@ -88,7 +86,7 @@ export default function Home() {
     }
   };
 
-  const limparTelefone = (numero: string) => {
+  const limparTelefone = (numero) => {
     const limpo = numero.replace(/\D/g, "");
     const valido = limpo.match(/^\d{10,13}$/);
     return valido ? limpo : "";
@@ -114,9 +112,7 @@ export default function Home() {
         return;
       }
 
-      const telefoneBruto = telefones[0].telefone;
-      const telefone = limparTelefone(telefoneBruto);
-
+      const telefone = limparTelefone(telefones[0].telefone);
       if (!telefone) {
         alert("Telefone inválido encontrado na planilha.");
         return;
@@ -145,7 +141,6 @@ export default function Home() {
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
         <meta name="theme-color" content="#000000" />
       </Head>
-
       <main className={`min-h-screen ${bgColor} ${textColor} p-4 flex flex-col items-center`}>
         <button
           onClick={() => setDarkMode(!darkMode)}
@@ -154,10 +149,10 @@ export default function Home() {
           {darkMode ? "☀️ Modo Claro" : "🌙 Modo Escuro"}
         </button>
 
-        {showInstallButton && (
+        {installButtonVisible && (
           <button
-            onClick={instalarApp}
-            className="mb-4 px-4 py-2 rounded bg-blue-700 text-white hover:bg-blue-600"
+            onClick={handleInstall}
+            className="mb-4 px-4 py-2 rounded bg-green-700 text-white hover:bg-green-600"
           >
             📲 Instalar App
           </button>
@@ -201,6 +196,16 @@ export default function Home() {
               className={inputStyle}
               value={leituraAtual}
               onChange={(e) => setLeituraAtual(e.target.value)}
+            />
+          </label>
+
+          <label className="flex flex-col">
+            % de Adicional sobre Consumo:
+            <input
+              type="number"
+              className={inputStyle}
+              value={percentual}
+              onChange={(e) => setPercentual(e.target.value)}
             />
           </label>
 

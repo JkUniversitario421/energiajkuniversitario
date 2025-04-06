@@ -3,15 +3,13 @@
 import { useState, useEffect } from "react";
 
 export default function Home() {
-  const [acomodacao, setAcomodacao] = useState("1");
   const [leituraAnterior, setLeituraAnterior] = useState("");
   const [leituraAtual, setLeituraAtual] = useState("");
   const [taxaIluminacao, setTaxaIluminacao] = useState("");
   const [valorCalculado, setValorCalculado] = useState("");
-  const [whatsLink, setWhatsLink] = useState("");
   const [darkMode, setDarkMode] = useState(true);
 
-  // Modificado para um tipo genérico para o evento
+  // Modificado para um tipo mais específico para o evento
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
   const [installButtonVisible, setInstallButtonVisible] = useState(false);
 
@@ -51,7 +49,6 @@ export default function Home() {
   return (
     <main>
       <div>
-        <h1>Acomodação {acomodacao}</h1>
         <div>
           <label>Leitura Anterior:</label>
           <input 
@@ -94,12 +91,6 @@ export default function Home() {
             Instalar App
           </button>
         )}
-      </div>
-
-      <div>
-        <a href={whatsLink} target="_blank" rel="noopener noreferrer">
-          Enviar Leitura pelo WhatsApp
-        </a>
       </div>
     </main>
   );

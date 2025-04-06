@@ -1,7 +1,4 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import useServiceWorker from './service-worker'; // Importando a função para registrar o service worker
 
 export default function Home() {
   const [acomodacao, setAcomodacao] = useState("1");
@@ -11,15 +8,14 @@ export default function Home() {
   const [valorCalculado, setValorCalculado] = useState("");
   const [whatsLink, setWhatsLink] = useState("");
   const [darkMode, setDarkMode] = useState(true);
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [installButtonVisible, setInstallButtonVisible] = useState(false);
 
-  // Usando o hook para registrar o service worker
-  useServiceWorker();
+  // Tipagem corrigida para BeforeInstallPromptEvent
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installButtonVisible, setInstallButtonVisible] = useState(false);
 
   useEffect(() => {
     // Adiciona o evento 'beforeinstallprompt' para capturar o prompt de instalação
-    const handleBeforeInstallPrompt = (e: Event) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       // Previne o prompt de instalação padrão
       e.preventDefault();
       // Armazena o evento para dispará-lo quando o usuário clicar no botão
@@ -128,15 +124,11 @@ export default function Home() {
     }
   };
 
-  const bgColor = darkMode ? "bg-black" : "bg-white";
-  const textColor = darkMode ? "text-white" : "text-black";
-  const inputStyle = `${bgColor} ${textColor} border p-2 rounded mt-1`;
-
   const handleInstall = () => {
     if (deferredPrompt) {
       // Exibe o prompt de instalação
       deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
+      deferredPrompt.userChoice.then((choiceResult: UserChoice) => {
         if (choiceResult.outcome === 'accepted') {
           console.log('Usuário aceitou o prompt de instalação');
         } else {
@@ -149,7 +141,7 @@ export default function Home() {
   };
 
   return (
-    <main className={`min-h-screen ${bgColor} ${textColor} p-4 flex flex-col items-center`}>
+    <main className={`min-h-screen bg-black text-white p-4 flex flex-col items-center`}>
       <button
         onClick={() => setDarkMode(!darkMode)}
         className="mb-4 px-4 py-2 rounded bg-gray-700 text-white hover:bg-gray-600"
@@ -163,7 +155,6 @@ export default function Home() {
         <label className="flex flex-col">
           Acomodacão:
           <select
-            className={inputStyle}
             value={acomodacao}
             onChange={(e) => {
               setAcomodacao(e.target.value);
@@ -171,7 +162,7 @@ export default function Home() {
             }}
           >
             {[...Array(7)].map((_, i) => (
-              <option key={i} value={i + 1} className={inputStyle}>
+              <option key={i} value={i + 1}>
                 Quarto {i + 1}
               </option>
             ))}
@@ -182,7 +173,6 @@ export default function Home() {
           Leitura Anterior (kWh):
           <input
             type="number"
-            className={inputStyle}
             value={leituraAnterior}
             onChange={(e) => setLeituraAnterior(e.target.value)}
           />
@@ -192,7 +182,6 @@ export default function Home() {
           Leitura Atual (kWh):
           <input
             type="number"
-            className={inputStyle}
             value={leituraAtual}
             onChange={(e) => setLeituraAtual(e.target.value)}
           />
@@ -202,7 +191,6 @@ export default function Home() {
           Taxa de Iluminação Pública (R$):
           <input
             type="number"
-            className={inputStyle}
             value={taxaIluminacao}
             onChange={(e) => setTaxaIluminacao(e.target.value)}
           />

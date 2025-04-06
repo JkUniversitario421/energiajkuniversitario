@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, ChangeEvent, MouseEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 
 // Tipagem para o evento beforeinstallprompt
 interface BeforeInstallPromptEvent extends Event {

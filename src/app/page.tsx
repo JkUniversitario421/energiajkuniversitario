@@ -3,6 +3,11 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+};
+
 export default function Home() {
   const [acomodacao, setAcomodacao] = useState("1");
   const [leituraAnterior, setLeituraAnterior] = useState("");
@@ -12,11 +17,11 @@ export default function Home() {
   const [valorCalculado, setValorCalculado] = useState("");
   const [whatsLink, setWhatsLink] = useState("");
   const [darkMode, setDarkMode] = useState(true);
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [installButtonVisible, setInstallButtonVisible] = useState(false);
 
   useEffect(() => {
-    const handler = (e) => {
+    const handler = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setInstallButtonVisible(true);
@@ -86,7 +91,7 @@ export default function Home() {
     }
   };
 
-  const limparTelefone = (numero) => {
+  const limparTelefone = (numero: string) => {
     const limpo = numero.replace(/\D/g, "");
     const valido = limpo.match(/^\d{10,13}$/);
     return valido ? limpo : "";

@@ -1,30 +1,35 @@
-'use client';  // Certifique-se de que a diretiva 'use client' esteja presente
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent, MouseEvent } from "react";
+
+// Tipagem para o evento beforeinstallprompt
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{
+    outcome: 'accepted' | 'dismissed';
+    platform: string;
+  }>;
+}
 
 export default function Home() {
-  const [leituraAnterior, setLeituraAnterior] = useState("");
-  const [leituraAtual, setLeituraAtual] = useState("");
-  const [taxaIluminacao, setTaxaIluminacao] = useState("");
-  const [valorCalculado, setValorCalculado] = useState("");
-  const [darkMode, setDarkMode] = useState(true);
+  const [leituraAnterior, setLeituraAnterior] = useState<string>("");
+  const [leituraAtual, setLeituraAtual] = useState<string>("");
+  const [taxaIluminacao, setTaxaIluminacao] = useState<string>("");
+  const [valorCalculado, setValorCalculado] = useState<string>("");
+  const [darkMode, setDarkMode] = useState<boolean>(true);
 
-  // Modificado para um tipo mais específico para o evento
-  const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
-  const [installButtonVisible, setInstallButtonVisible] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installButtonVisible, setInstallButtonVisible] = useState<boolean>(false);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Previne o prompt de instalação padrão
       e.preventDefault();
-      // Armazena o evento para dispará-lo quando o usuário clicar no botão
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       setInstallButtonVisible(true);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Cleanup
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
@@ -32,9 +37,11 @@ export default function Home() {
 
   const handleInstall = () => {
     if (deferredPrompt) {
-      // Exibe o prompt de instalação
-      (deferredPrompt as BeforeInstallPromptEvent).prompt();
-      (deferredPrompt as BeforeInstallPromptEvent).userChoice.then((choiceResult: any) => {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult: {
+        outcome: 'accepted' | 'dismissed';
+        platform: string;
+      }) => {
         if (choiceResult.outcome === 'accepted') {
           console.log('Usuário aceitou o prompt de instalação');
         } else {
@@ -46,6 +53,9 @@ export default function Home() {
     }
   };
 
+  const handleInputChange = (setter: (value: string) => void) => 
+    (e: ChangeEvent<HTMLInputElement>) => setter(e.target.value);
+
   return (
     <main>
       <div>
@@ -54,7 +64,7 @@ export default function Home() {
           <input 
             type="text" 
             value={leituraAnterior} 
-            onChange={(e) => setLeituraAnterior(e.target.value)} 
+            onChange={handleInputChange(setLeituraAnterior)} 
           />
         </div>
         <div>
@@ -62,7 +72,7 @@ export default function Home() {
           <input 
             type="text" 
             value={leituraAtual} 
-            onChange={(e) => setLeituraAtual(e.target.value)} 
+            onChange={handleInputChange(setLeituraAtual)} 
           />
         </div>
         <div>
@@ -70,7 +80,7 @@ export default function Home() {
           <input 
             type="text" 
             value={taxaIluminacao} 
-            onChange={(e) => setTaxaIluminacao(e.target.value)} 
+            onChange={handleInputChange(setTaxaIluminacao)} 
           />
         </div>
         <div>
@@ -78,7 +88,7 @@ export default function Home() {
           <input 
             type="text" 
             value={valorCalculado} 
-            onChange={(e) => setValorCalculado(e.target.value)} 
+            onChange={handleInputChange(setValorCalculado)} 
           />
         </div>
         <div>

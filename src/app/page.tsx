@@ -122,12 +122,14 @@ export default function Home() {
       }
 
       const telefone = limparTelefone(telefones[0].telefone);
+      const nomeCliente = telefones[0].nome || "Cliente";
+
       if (!telefone) {
         alert("Telefone inválido encontrado na planilha.");
         return;
       }
 
-      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\nkWh ⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}`;
+      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n👤 Cliente: ${nomeCliente}\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}`;
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);
     } catch (error) {

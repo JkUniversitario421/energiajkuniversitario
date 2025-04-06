@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import useServiceWorker from './service-worker'; // Caminho correto
+import useServiceWorker from './service-worker'; // Importando a função para registrar o service worker
 
 export default function Home() {
   const [acomodacao, setAcomodacao] = useState("1");
@@ -13,6 +13,9 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [installButtonVisible, setInstallButtonVisible] = useState(false);
+
+  // Usando o hook para registrar o service worker
+  useServiceWorker();
 
   useEffect(() => {
     // Adiciona o evento 'beforeinstallprompt' para capturar o prompt de instalação
@@ -242,17 +245,13 @@ export default function Home() {
           📊 Ver Histórico de Leituras
         </a>
 
-        {/* Opção para instalar o app */}
         {installButtonVisible && (
-          <div className="mt-6">
-            <p className="text-center">Adicionar ao seu dispositivo:</p>
-            <button
-              onClick={handleInstall}
-              className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
-            >
-              Instalar
-            </button>
-          </div>
+          <button
+            onClick={handleInstall}
+            className="mt-4 px-4 py-2 rounded bg-blue-600 text-white"
+          >
+            Instalar App
+          </button>
         )}
       </div>
     </main>

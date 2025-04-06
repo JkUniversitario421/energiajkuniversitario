@@ -127,7 +127,7 @@ export default function Home() {
         return;
       }
 
-      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\n🔢 Leitura Anterior: ${ultimo.leitura_anterior} kWh\n🔢 Leitura Atual: ${ultimo.leitura_atual} kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}\n📈 % Adicional: ${ultimo.percentual}%\n💡 Iluminação: R$ ${ultimo.iluminacao}`;
+      const mensagem = `📊 *Leitura de Energia - Acomodacão ${ultimo.acomodacao}*\ kWh\n⚡ Consumo: ${ultimo.consumo} kWh\n💸 Valor: R$ ${ultimo.valor}`;
 
       const link = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
       setWhatsLink(link);

@@ -60,7 +60,7 @@ export default function Home() {
     const consumo = atual - anterior;
     const adicional = consumo * taxaPerc;
     const taxa = parseFloat(taxaIluminacao);
-    const valorFinal = consumo * adicional + taxa;
+    const valorFinal = consumo + adicional + taxa;
 
     setValorCalculado(valorFinal.toFixed(2));
 

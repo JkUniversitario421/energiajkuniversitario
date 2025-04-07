@@ -14,7 +14,7 @@ export default function Home() {
   const [acomodacao, setAcomodacao] = useState("1");
   const [leituraAnterior, setLeituraAnterior] = useState("");
   const [leituraAtual, setLeituraAtual] = useState("");
-  const [percentual, setPercentual] = useState("10");
+  const [percentual, setPercentual] = useState("");
   const [taxaIluminacao, setTaxaIluminacao] = useState("");
   const [valorCalculado, setValorCalculado] = useState("");
   const [whatsLink, setWhatsLink] = useState("");
@@ -47,7 +47,7 @@ export default function Home() {
   const limparCampos = () => {
     setLeituraAnterior("");
     setLeituraAtual("");
-    setPercentual("10");
+    setPercentual("");
     setTaxaIluminacao("");
     setValorCalculado("");
     setWhatsLink("");
@@ -60,7 +60,7 @@ export default function Home() {
     const consumo = atual - anterior;
     const adicional = consumo * taxaPerc;
     const taxa = parseFloat(taxaIluminacao);
-    const valorFinal = consumo + adicional + taxa;
+    const valorFinal = consumo * adicional + taxa;
 
     setValorCalculado(valorFinal.toFixed(2));
 
